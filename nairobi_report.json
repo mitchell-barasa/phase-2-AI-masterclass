@@ -1,0 +1,61 @@
+{
+  "city": "Nairobi",
+  "country": "KE",
+  "weather": {
+    "coord": {
+      "lon": 36.8167,
+      "lat": -1.2833
+    },
+    "weather": [
+      {
+        "id": 500,
+        "main": "Rain",
+        "description": "light rain",
+        "icon": "10n"
+      }
+    ],
+    "base": "stations",
+    "main": {
+      "temp": 21.93,
+      "feels_like": 21.75,
+      "temp_min": 21.62,
+      "temp_max": 21.93,
+      "pressure": 1016,
+      "humidity": 60,
+      "sea_level": 1016,
+      "grnd_level": 838
+    },
+    "visibility": 10000,
+    "wind": {
+      "speed": 8.75,
+      "deg": 70
+    },
+    "rain": {
+      "1h": 0.13
+    },
+    "clouds": {
+      "all": 40
+    },
+    "dt": 1794843219,
+    "sys": {
+      "type": 1,
+      "id": 2558,
+      "country": "KE",
+      "sunrise": 1794798740,
+      "sunset": 1794842569
+    },
+    "timezone": 10800,
+    "id": 184745,
+    "name": "Nairobi",
+    "cod": 200
+  },
+  "country_info": {
+    "success": false,
+    "data": null,
+    "errors": [
+      {
+        "message": "This API version has been deprecated. Please visit https://restcountries.com/docs/countries/legacy-api-deprecation to migrate to our new version (v5)."
+      }
+    ]
+  }
+}

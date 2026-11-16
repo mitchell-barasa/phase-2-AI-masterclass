@@ -1,0 +1,59 @@
+{
+  "city": "Moscow",
+  "country": "RU",
+  "weather": {
+    "coord": {
+      "lon": 37.6156,
+      "lat": 55.7522
+    },
+    "weather": [
+      {
+        "id": 800,
+        "main": "Clear",
+        "description": "clear sky",
+        "icon": "01n"
+      }
+    ],
+    "base": "stations",
+    "main": {
+      "temp": 2.59,
+      "feels_like": -1.04,
+      "temp_min": 2.29,
+      "temp_max": 3.24,
+      "pressure": 1021,
+      "humidity": 62,
+      "sea_level": 1021,
+      "grnd_level": 1002
+    },
+    "visibility": 10000,
+    "wind": {
+      "speed": 3.91,
+      "deg": 189,
+      "gust": 8.75
+    },
+    "clouds": {
+      "all": 0
+    },
+    "dt": 1794843171,
+    "sys": {
+      "type": 2,
+      "id": 2095214,
+      "country": "RU",
+      "sunrise": 1794805585,
+      "sunset": 1794835341
+    },
+    "timezone": 10800,
+    "id": 524901,
+    "name": "Moscow",
+    "cod": 200
+  },
+  "country_info": {
+    "success": false,
+    "data": null,
+    "errors": [
+      {
+        "message": "This API version has been deprecated. Please visit https://restcountries.com/docs/countries/legacy-api-deprecation to migrate to our new version (v5)."
+      }
+    ]
+  }
+}
