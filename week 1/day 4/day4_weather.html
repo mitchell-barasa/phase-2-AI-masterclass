@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Live Weather Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 550px; margin: 50px auto; padding: 0 20px; background: #f0f4f8; color: #1e293b; }
+    .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    h1 { color: #0f172a; margin-top: 0; }
+    .controls { display: flex; gap: 10px; margin-bottom: 20px; }
+    input { flex: 1; padding: 10px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 6px; }
+    button { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; }
+    button:hover { background: #1d4ed8; }
+    #result { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; min-height: 60px; }
+    .error { color: #dc2626; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h1>Live Weather Lookup</h1>
+  <div class="controls">
+    <input type="text" id="cityInput" placeholder="Enter city (e.g. Nairobi)">
+    <button onclick="getWeather()">Check Weather</button>
+  </div>
+  <div id="result">Enter a city above to fetch live weather data.</div>
+</div>
+
+<script>
+async function getWeather() {
+  const city = document.getElementById("cityInput").value.trim();
+  const resultDiv = document.getElementById("result");
+
+  if (!city) {
+    resultDiv.innerHTML = `<span class="error">Please enter a city name first.</span>`;
+    return;
+  }
+
+  resultDiv.innerHTML = "Loading...";
+
+  try {
+    // 1. Get coordinates from Open-Meteo Geocoding API
+    const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`);
+    if (!geoRes.ok) throw new Error(`Geocoding failed (${geoRes.status})`);
+    const geoData = await geoRes.json();
+
+    if (!geoData.results || geoData.results.length === 0) {
+      throw new Error(`City "${city}" not found. Try a valid city name.`);
+    }
+
+    const place = geoData.results[0];
+
+    // 2. Fetch live weather using those coordinates
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m`;
+    const weatherRes = await fetch(weatherUrl);
+    if (!weatherRes.ok) throw new Error(`Weather API error (${weatherRes.status})`);
+    const weatherData = await weatherRes.json();
+
+    const current = weatherData.current;
+
+    resultDiv.innerHTML = `
+      <h2 style="margin-top:0;">${place.name}, ${place.country}</h2>
+      <p><strong>Temperature:</strong> ${current.temperature_2m} °C</p>
+      <p><strong>Humidity:</strong> ${current.relative_humidity_2m}%</p>
+      <p><strong>Wind Speed:</strong> ${current.wind_speed_10m} km/h</p>
+    `;
+  } catch (error) {
+    resultDiv.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+  }
+}
+</script>
+
+</body>
+</html>
