@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>City Weather & Country Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-light: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --danger: #f87171;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 820px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.4rem;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--card-light);
+      background: var(--card);
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+    }
+
+    .search-box button {
+      padding: 0.85rem 1.4rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #0f172a;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .search-box button:hover {
+      opacity: 0.9;
+    }
+
+    .status {
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .status.error {
+      display: block;
+      background: rgba(248, 113, 113, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+    }
+
+    .status.loading {
+      display: block;
+      color: var(--accent);
+    }
+
+    .dashboard {
+      display: none;
+      gap: 1.25rem;
+      flex-direction: column;
+    }
+
+    .dashboard.visible {
+      display: flex;
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 650px) {
+      .top-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .card h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .weather-main {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .weather-main img {
+      width: 68px;
+      height: 68px;
+      background: var(--card-light);
+      border-radius: 10px;
+    }
+
+    .temp {
+      font-size: 2.4rem;
+      font-weight: 700;
+    }
+
+    .desc {
+      color: var(--muted);
+      text-transform: capitalize;
+    }
+
+    .meta-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+      font-size: 0.9rem;
+    }
+
+    .meta-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .country-header {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .country-header img {
+      width: 52px;
+      height: auto;
+      border-radius: 4px;
+      border: 1px solid var(--card-light);
+    }
+
+    .country-header h3 {
+      font-size: 1.3rem;
+    }
+
+    .forecast-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 550px) {
+      .forecast-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .forecast-day {
+      background: rgba(15, 23, 42, 0.5);
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .forecast-day .day-name {
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .forecast-day img {
+      width: 50px;
+      height: 50px;
+    }
+
+    .forecast-day .f-temp {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0.25rem 0;
+    }
+
+    .forecast-day .f-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-transform: capitalize;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>City Weather & Country Dashboard</h1>
+      <p>Live weather, 3-day forecast, and national profile powered by OpenWeatherMap & REST Countries</p>
+    </header>
+
+    <form class="search-box" id="searchForm">
+      <input type="text" id="cityInput" placeholder="Enter a city (e.g., Nairobi, Tokyo, London)..." required />
+      <button type="submit">Search</button>
+    </form>
+
+    <div id="statusBox" class="status"></div>
+
+    <main id="dashboard" class="dashboard">
+      <div class="top-grid">
+        <!-- Current Weather Card -->
+        <section class="card">
+          <h2>Current Weather — <span id="cityTitle"></span></h2>
+          <div class="weather-main">
+            <img id="weatherIcon" alt="Weather icon" />
+            <div>
+              <div class="temp" id="currentTemp"></div>
+              <div class="desc" id="weatherDesc"></div>
+            </div>
+          </div>
+          <div class="meta-list">
+            <div class="meta-item"><span>Feels Like</span><strong id="feelsLike"></strong></div>
+            <div class="meta-item"><span>Humidity</span><strong id="humidity"></strong></div>
+            <div class="meta-item"><span>Wind Speed</span><strong id="windSpeed"></strong></div>
+            <div class="meta-item"><span>Pressure</span><strong id="pressure"></strong></div>
+          </div>
+        </section>
+
+        <!-- Country Info Card -->
+        <section class="card">
+          <h2>Country Profile</h2>
+          <div class="country-header">
+            <img id="countryFlag" alt="Country flag" />
+            <div>
+              <h3 id="countryName"></h3>
+              <span class="desc" id="countryRegion"></span>
+            </div>
+          </div>
+          <div class="meta-list">
+            <div class="meta-item"><span>Capital</span><strong id="countryCapital"></strong></div>
+            <div class="meta-item"><span>Population</span><strong id="countryPop"></strong></div>
+            <div class="meta-item"><span>Currency</span><strong id="countryCurrency"></strong></div>
+            <div class="meta-item"><span>Languages</span><strong id="countryLangs"></strong></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- 3-Day Forecast Card -->
+      <section class="card">
+        <h2>3-Day Midday Forecast</h2>
+        <div class="forecast-grid" id="forecastGrid"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Replace with your active OpenWeatherMap API key
+    const OWM_API_KEY = "d5c1b887c17e5e6fd4ade9646acb46c1";
+
+    const searchForm = document.getElementById("searchForm");
+    const cityInput = document.getElementById("cityInput");
+    const statusBox = document.getElementById("statusBox");
+    const dashboard = document.getElementById("dashboard");
+
+    function showStatus(message, type) {
+      statusBox.textContent = message;
+      statusBox.className = `status ${type}`;
+    }
+
+    function clearStatus() {
+      statusBox.className = "status";
+      statusBox.textContent = "";
+    }
+
+    async function fetchDashboardData(city) {
+      if (OWM_API_KEY === "YOUR_OPEN_WEATHERMAP_API_KEY" || !OWM_API_KEY.trim()) {
+        showStatus("Paste your OpenWeatherMap API key into OWM_API_KEY inside index.html first.", "error");
+        return;
+      }
+
+      dashboard.classList.remove("visible");
+      showStatus(`Fetching live weather and country data for "${city}"...`, "loading");
+
+      try {
+        const encodedCity = encodeURIComponent(city.trim());
+
+        // 1. Fetch Current Weather & 5-Day/3-Hour Forecast in parallel
+        const [currentRes, forecastRes] = await Promise.all([
+          fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodedCity}&units=metric&appid=${OWM_API_KEY}`),
+          fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${encodedCity}&units=metric&appid=${OWM_API_KEY}`)
+        ]);
+
+        if (!currentRes.ok) {
+          if (currentRes.status === 401) throw new Error("Invalid or not-yet-activated OpenWeatherMap API key (401).");
+          if (currentRes.status === 404) throw new Error(`City "${city}" not found. Check spelling and try again.`);
+          throw new Error(`Weather API error (${currentRes.status}).`);
+        }
+
+        const currentData = await currentRes.json();
+        const forecastData = await forecastRes.json();
+
+        // 2. Use the 2-letter country code from OpenWeatherMap to query REST Countries
+        const countryCode = currentData.sys.country.toUpperCase();
+        const countryRes = await fetch(`https://countries-api.davegarvey.workers.dev/countries`);
+        if (!countryRes.ok) throw new Error("Could not load country details.");
+     const allCountries = await countryRes.json();
+     const countryData = allCountries.find((c) => c.code === countryCode);
+     if (!countryData) throw new Error(`Country details not found for ${countryCode}.`);
+
+     renderDashboard(currentData, forecastData, countryData);
+     clearStatus();
+     dashboard.classList.add("visible");
+   } catch (err) {
+     showStatus(err.message, "error");
+   }
+ }
+
+    function renderDashboard(current, forecast, country) {
+      // Populate Current Weather
+      document.getElementById("cityTitle").textContent = `${current.name}, ${current.sys.country}`;
+      document.getElementById("currentTemp").textContent = `${Math.round(current.main.temp)}°C`;
+      document.getElementById("weatherDesc").textContent = current.weather[0].description;
+      document.getElementById("weatherIcon").src = `https://openweathermap.org/img/wn/${current.weather[0].icon}@2x.png`;
+      document.getElementById("feelsLike").textContent = `${Math.round(current.main.feels_like)}°C`;
+      document.getElementById("humidity").textContent = `${current.main.humidity}%`;
+      document.getElementById("windSpeed").textContent = `${current.wind.speed} m/s`;
+      document.getElementById("pressure").textContent = `${current.main.pressure} hPa`;
+
+      // Populate Country Info
+   document.getElementById("countryFlag").src = `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`;
+   document.getElementById("countryName").textContent = country.name;
+   document.getElementById("countryRegion").textContent = `${country.subregion || country.region}`;
+   document.getElementById("countryCapital").textContent = country.capital || "N/A";
+   document.getElementById("countryPop").textContent = country.population.toLocaleString();
+   document.getElementById("countryCurrency").textContent = country.currency || "N/A";
+   document.getElementById("countryLangs").textContent = Array.isArray(country.languages)
+     ? country.languages.slice(0, 2).join(", ")
+     : "N/A";
+
+      const currencyObj = country.currencies ? Object.values(country.currencies)[0] : null;
+      document.getElementById("countryCurrency").textContent = currencyObj
+        ? `${currencyObj.name} (${currencyObj.symbol || ""})`
+        : "N/A";
+
+      const langs = country.languages ? Object.values(country.languages).slice(0, 2).join(", ") : "N/A";
+      document.getElementById("countryLangs").textContent = langs;
+
+      // Populate 3-Day Forecast (pick 12:00:00 entries for the next 3 distinct days)
+      const todayStr = new Date().toISOString().split("T")[0];
+      const dailyMidday = forecast.list
+        .filter((item) => item.dt_txt.includes("12:00:00") && !item.dt_txt.startsWith(todayStr))
+        .slice(0, 3);
+
+      const forecastGrid = document.getElementById("forecastGrid");
+      forecastGrid.innerHTML = dailyMidday
+        .map((day) => {
+          const date = new Date(day.dt * 1000);
+          const dayName = date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+          return `
+            <div class="forecast-day">
+              <div class="day-name">${dayName}</div>
+              <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png" alt="${day.weather[0].description}" />
+              <div class="f-temp">${Math.round(day.main.temp)}°C</div>
+              <div class="f-desc">${day.weather[0].description}</div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    searchForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (cityInput.value.trim()) {
+        fetchDashboardData(cityInput.value);
+      }
+    });
+
+    // Load a default city on startup so the dashboard isn't blank
+    fetchDashboardData("Nairobi");
+  </script>
+</body>
+</html>
